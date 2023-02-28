@@ -1,83 +1,80 @@
-import requests
+import os
 import json
-import pyodbc
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-def get_access_token():
-    # Define the Azure AD tenant ID and the client ID and secret for the app that has permission to access the Advisor API
-    tenant_id = 'your_tenant_id'
-    client_id = 'your_client_id'
-    client_secret = 'your_client_secret'
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-    # Build the URL for the token endpoint
-    url = f'https://login.microsoftonline.com/{tenant_id}/oauth2/token'
-
-    # Define the request parameters for the token endpoint
+def get_access_token(client_id, client_secret, tenant_id):
+    url = 'https://login.microsoftonline.com/{0}/oauth2/v2.0/token'.format(tenant_id)
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     data = {
         'grant_type': 'client_credentials',
         'client_id': client_id,
         'client_secret': client_secret,
-        'resource': 'https://management.azure.com/'
+        'scope': 'https://management.azure.com/.default'
     }
-
-    # Send a POST request to the token endpoint to get an access token
-    response = requests.post(url, data=data)
-
-    # Parse the JSON response and return the access token
-    access_token = json.loads(response.content)['access_token']
+    response = requests.post(url, headers=headers, data=data, verify=False)
+    access_token = response.json()['access_token']
     return access_token
 
-def get_advisor_recommendations(subscription_id, access_token):
-    # Build the URL for the Advisor API to get recommendations for the subscription
-    url = f'https://management.azure.com/subscriptions/{subscription_id}/providers/Microsoft.Advisor/recommendations?api-version=2017-04-19'
-
-    # Define the request headers with the access token
+def get_subscriptions(access_token):
+    url = 'https://management.azure.com/subscriptions?api-version=2021-01-01'
     headers = {
-        'Authorization': f'Bearer {access_token}'
+        'Authorization': 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
     }
+    response = requests.get(url, headers=headers, verify=False)
+    subscriptions = response.json()['value']
+    return subscriptions
 
-    # Send a GET request to the Advisor API to get recommendations for the subscription
-    response = requests.get(url, headers=headers)
-
-    # Parse the JSON response and return the recommendations
-    recommendations = json.loads(response.content)['value']
+def get_recommendations(access_token, subscription_id):
+    url = 'https://management.azure.com/subscriptions/{0}/providers/Microsoft.Advisor/recommendations?api-version=2021-01-01'.format(subscription_id)
+    headers = {
+        'Authorization': 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
+    }
+    recommendations = []
+    while url:
+        response = requests.get(url, headers=headers, verify=False)
+        data = response.json()
+        recommendations += data['value']
+        url = data.get('nextLink', None)
     return recommendations
 
-def upload_recommendations_to_sql_server(server, database, username, password, recommendations):
-    # Establish a connection to the SQL Server
-    conn = pyodbc.connect(f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
-    # Create a cursor to execute SQL commands
-    cursor = conn.cursor()
+def get_recommendation_details(access_token, subscription_id, resource_id):
+    url = 'https://management.azure.com{0}?api-version=2021-01-01'.format(resource_id)
+    headers = {
+        'Authorization': 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
+    }
+    response = requests.get(url, headers=headers, verify=False)
+    data = response.json()
+    extended_properties = data['properties']['extendedProperties']
+    resource_metadata = data['properties']['metadata']
+    return {'extended_properties': extended_properties, 'resource_metadata': resource_metadata}
 
-    try:
-        # Build the SQL INSERT statement for each recommendation
+def get_all_recommendations(access_token, subscriptions):
+    all_recommendations = []
+    for subscription in subscriptions:
+        subscription_id = subscription['subscriptionId']
+        recommendations = get_recommendations(access_token, subscription_id)
         for recommendation in recommendations:
-            insert_query = f"INSERT INTO AdvisorRecommendations (SubscriptionId, ResourceId, RecommendationId, Category, Impact, Risk, Problem, Solution) VALUES ('{recommendation['subscriptionId']}', '{recommendation['properties']['resourceId']}', '{recommendation['id']}', '{recommendation['properties']['category']}', '{recommendation['properties']['impact']}', '{recommendation['properties']['risk']}', '{recommendation['properties']['problem']}', '{recommendation['properties']['solution']}')"
+            resource_id = recommendation['id']
+            recommendation_details = get_recommendation_details(access_token, subscription_id, resource_id)
+            recommendation.update(recommendation_details)
+        all_recommendations += recommendations
+    return all_recommendations
 
-            # Execute the INSERT statement
-            cursor.execute(insert_query)
+def main():
+    client_id = os.environ['AZURE_CLIENT_ID']
+    client_secret = os.environ['AZURE_CLIENT_SECRET']
+    tenant_id = os.environ['AZURE_TENANT_ID']
+    access_token = get_access_token(client_id, client_secret, tenant_id)
+    subscriptions = get_subscriptions(access_token)
+    recommendations = get_all_recommendations(access_token, subscriptions)
+    with open('azure_recommendations.json', 'w') as f:
+        json.dump(recommendations, f, indent=4)
 
-        # Commit the transaction after all inserts are done
-        conn.commit()
-    except:
-        # Rollback the transaction if there is an error
-        conn.rollback()
-        raise
-    finally:
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
-
-# Get an access token to authenticate with the Advisor API
-access_token = get_access_token()
-
-# Get a list of all subscriptions
-url = 'https://management.azure.com/subscriptions?api-version=2021-04-01'
-headers = {
-    'Authorization': f'Bearer {access_token}'
-}
-response = requests.get(url, headers=headers)
-subscriptions = json.loads(response.content)['value']
-
-# Iterate through each subscription and get Advisor recommendations
-for subscription in subscriptions:
-    recommendations = get_advisor_recommendations
+if __name__ == '__main__':
+    main()
