@@ -1,0 +1,50 @@
+---
+- name: Verify A Record existence in NIOS
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    nios_host: "<NIOS_HOST>"
+    nios_username: "<NIOS_USERNAME>"
+    nios_password: "<NIOS_PASSWORD>"
+    nios_view: "<NIOS_VIEW>"
+    record_name: "<RECORD_NAME>"
+    record_ip: "<RECORD_IP>"
+
+  tasks:
+    - name: Get existing A Records
+      uri:
+        url: "https://{{ nios_host }}/wapi/v2.10/record:a"
+        method: GET
+        user: "{{ nios_username }}"
+        password: "{{ nios_password }}"
+        validate_certs: no
+        headers:
+          Content-Type: "application/json"
+        params:
+          view: "{{ nios_view }}"
+          name: "{{ record_name }}"
+          ip_address: "{{ record_ip }}"
+      register: existing_records
+      failed_when: false
+
+    - name: Display record existence status
+      debug:
+        msg: "A Record {{ record_name }} already exists with IP {{ record_ip }}"
+      when: existing_records.status == 200 and existing_records.json.results | length > 0
+
+    - name: Create A Record
+      uri:
+        url: "https://{{ nios_host }}/wapi/v2.10/record:a"
+        method: POST
+        user: "{{ nios_username }}"
+        password: "{{ nios_password }}"
+        validate_certs: no
+        headers:
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          name: "{{ record_name }}"
+          ipv4addr: "{{ record_ip }}"
+          view: "{{ nios_view }}"
+      when: existing_records.status == 200 and existing_records.json.results | length == 0
