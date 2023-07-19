@@ -1,0 +1,32 @@
+---
+- name: Append server to ADO repository
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Clone ADO repository
+      azure.devops.git_repository:
+        org: YourOrganization
+        project: YourProject
+        repository: YourRepository
+        version: HEAD
+        dest: /path/to/cloned/repo
+        token: YourPAT
+        branch: YourBranch
+        state: present
+
+    - name: Append server details
+      lineinfile:
+        path: /path/to/cloned/repo/server_list.txt
+        line: "New Server Details"
+        state: present
+
+    - name: Commit changes
+      command: git commit -am "Add new server"
+      args:
+        chdir: /path/to/cloned/repo
+
+    - name: Push changes
+      command: git push
+      args:
+        chdir: /path/to/cloned/repo
