@@ -1,55 +1,45 @@
 #!/bin/bash
 
-# Set your TFC organization and API token
+# Set your Terraform Cloud organization, API token, and workspace name
 ORG_NAME="your-organization"
 API_TOKEN="your-api-token"
-
-# Set the workspace name
 WORKSPACE_NAME="your-workspace-name"
 
-# Set the variable names and values to add/update
-SECRET_KEY="my_secret"
-SECRET_VALUE="my_secret_value"
-ENV_VARIABLE_KEY="MY_ENV_VARIABLE"
-ENV_VARIABLE_VALUE="new_value"
+# Set the variable name and updated value
+VARIABLE_NAME="variable_name"
+UPDATED_VALUE="new_value"
 
 # Get the workspace ID
 WORKSPACE_ID=$(curl -s -H "Authorization: Bearer $API_TOKEN" \
     "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces" | \
-    jq -r ".data[] | select(.attributes.name == \"$WORKSPACE_NAME\") | .id")
+    grep -o "\"id\":\"[^\"]*\"" | grep -o "[^\"]*" | paste - - | grep "$WORKSPACE_NAME" | cut -f 2)
 
 if [[ -z $WORKSPACE_ID ]]; then
     echo "Workspace '$WORKSPACE_NAME' not found."
     exit 1
 fi
 
-# Add secret variable
-curl -s -X POST -H "Authorization: Bearer $API_TOKEN" \
-    -H "Content-Type: application/vnd.api+json" \
-    -d '{
-        "data": {
-            "type": "vars",
-            "attributes": {
-                "key": "'$SECRET_KEY'",
-                "value": "'$SECRET_VALUE'",
-                "category": "env"
-            }
-        }
-    }' \
-    "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/vars"
+# Get the variable ID
+VARIABLE_ID=$(curl -s -H "Authorization: Bearer $API_TOKEN" \
+    "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/vars" | \
+    grep -o "\"id\":\"[^\"]*\",\"key\":\"$VARIABLE_NAME\"" | grep -o "\"id\":\"[^\"]*\"" | grep -o "[^\"]*")
 
-# Update environment variable
+if [[ -z $VARIABLE_ID ]]; then
+    echo "Variable '$VARIABLE_NAME' not found in workspace '$WORKSPACE_NAME'."
+    exit 1
+fi
+
+# Update the variable value
 curl -s -X PATCH -H "Authorization: Bearer $API_TOKEN" \
     -H "Content-Type: application/vnd.api+json" \
     -d '{
         "data": {
             "type": "vars",
             "attributes": {
-                "key": "'$ENV_VARIABLE_KEY'",
-                "value": "'$ENV_VARIABLE_VALUE'"
+                "value": "'$UPDATED_VALUE'"
             }
         }
     }' \
-    "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/vars/environment"
+    "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/vars/$VARIABLE_ID"
 
-echo "Secret variable and environment variable updated for workspace '$WORKSPACE_NAME'."
+echo "Terraform variable '$VARIABLE_NAME' updated to '$UPDATED_VALUE' in workspace '$WORKSPACE_NAME'."
