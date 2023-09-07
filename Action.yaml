@@ -1,0 +1,30 @@
+name: Delete Stale Branches
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily
+
+jobs:
+  delete-stale-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Git
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: List branches and delete stale ones
+        run: |
+          git fetch --prune
+          for branch in $(git for-each-ref --format='%(refname:short) %(committerdate:iso8601)' refs/heads/); do
+            branch_name=$(echo "$branch" | awk '{print $1}')
+            commit_date=$(echo "$branch" | awk '{print $2}')
+            ninety_days_ago=$(date -d "90 days ago" +%Y-%m-%d)
+            if [ "$commit_date" '<' "$ninety_days_ago" ]; then
+              git push origin --delete "$branch_name"
+              echo "Deleted branch: $branch_name"
+            fi
+          done
