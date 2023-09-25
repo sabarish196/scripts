@@ -21,3 +21,13 @@ if ($currentDay -eq "Saturday" -or $currentDay -eq "Sunday") {
         Write-Output "Weekday: Skipping start-stop actions"
     }
 }
+
+# Get the current UTC time
+$currentTimeUTC = [System.DateTime]::UtcNow
+
+# Check if it's Friday at 23:00 UTC or Monday at 08:00 UTC
+if (($currentTimeUTC.DayOfWeek -eq [System.DayOfWeek]::Friday -and $currentTimeUTC.Hour -eq 23) -or
+    ($currentTimeUTC.DayOfWeek -eq [System.DayOfWeek]::Monday -and $currentTimeUTC.Hour -eq 8)) {
+    # Perform the VM action here (e.g., shut down or start the VM)
+    # Replace this with the actual code to perform the VM action
+}
