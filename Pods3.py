@@ -49,10 +49,10 @@ if namespace_response.status_code == 200:
 namespace_df = pd.DataFrame(namespace_data, columns=["Namespace", "Total Pods"])
 node_df = pd.DataFrame(node_data, columns=["Node Name"])
 
-# Define CSV file path
-csv_file = "pod_data_with_sheets.csv"
+# Define CSV file paths
+namespace_csv_file = "total_pods_in_namespace.csv"
+node_csv_file = "total_pods_on_nodes.csv"
 
-# Write DataFrames to the same CSV file with different sheets
-with pd.ExcelWriter(csv_file, engine='xlsxwriter') as writer:
-    namespace_df.to_excel(writer, sheet_name='Total Pods in Namespace', index=False)
-    node_df.to_excel(writer, sheet_name='Total Pods on Nodes', index=False)
+# Write DataFrames to separate CSV files
+namespace_df.to_csv(namespace_csv_file, index=False)
+node_df.to_csv(node_csv_file, index=False)
