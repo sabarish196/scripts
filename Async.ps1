@@ -44,3 +44,35 @@ $url = "https://jsonplaceholder.typicode.com/posts/1"  # Replace with your desir
 
 # Call the asynchronous function
 InvokeRestMethodAsync -url $url
+
+
+
+
+# Define the URL to request
+$url = "https://jsonplaceholder.typicode.com/posts/1"
+
+# Define a script block for asynchronous execution
+$scriptBlock = {
+    param (
+        [string]$url
+    )
+
+    $result = Invoke-RestMethod -Uri $url -Method Get
+    Write-Host "Request to $url succeeded."
+    $result
+}
+
+# Start asynchronous execution
+$task = Start-Job -ScriptBlock $scriptBlock -ArgumentList $url
+
+# Wait for the request to complete
+Wait-Job $task
+
+# Get the result
+$result = Receive-Job $task
+
+# Print the response
+Write-Host "Response: $($result | ConvertTo-Json -Depth 1)"
+
+# Clean up the job
+Remove-Job $task
