@@ -27,3 +27,30 @@ $aksCluster = Get-AzAks -ResourceGroupName $resourceGroupName -Name $clusterName
 
 # Display the status of the AKS cluster
 Write-Host "AKS Cluster Status: $($aksCluster.ProvisioningState)"
+
+
+# Import Azure PowerShell module
+Import-Module Az
+
+# Sign in to your Azure account
+Connect-AzAccount
+
+# Replace with the name of your AKS cluster and resource group
+$resourceGroupName = "<YourResourceGroupName>"
+$clusterName = "<YourClusterName>"
+
+# Stop the AKS cluster
+Stop-AzAks -ResourceGroupName $resourceGroupName -Name $clusterName
+Write-Host "Stopping AKS cluster..."
+
+# Wait for the cluster to stop
+do {
+    Start-Sleep -Seconds 30  # Wait for 30 seconds
+    $aksCluster = Get-AzAks -ResourceGroupName $resourceGroupName -Name $clusterName
+} until ($aksCluster.AgentPoolProfiles[0].PowerState -eq "Stopped")
+
+# Display the status of the AKS cluster
+Write-Host "AKS Cluster has been stopped."
+
+
+
