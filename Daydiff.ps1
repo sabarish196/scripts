@@ -237,4 +237,32 @@ function GetDaysBetweenTwoDays {
 }
 
 # Example usage:
+
+
+
 GetDaysBetweenTwoDays -startDay "Thursday" -endDay "Tuesday"
+
+
+// Replace these variables with user inputs or dynamic values
+$startDay = "Saturday";
+$startTime = 12; // 24-hour format
+$endDay = "Monday";
+$endTime = 4; // 24-hour format
+
+// Current date and time
+$currentDay = date("l");
+$currentHour = date("G");
+
+// Convert start and end days to timestamp
+$startTimestamp = strtotime("next $startDay $startTime:00");
+$endTimestamp = strtotime("next $endDay $endTime:00");
+
+// Current timestamp
+$currentTimestamp = time();
+
+// Check if current timestamp is within the specified range
+if ($currentTimestamp >= $startTimestamp && $currentTimestamp <= $endTimestamp) {
+    echo "It's within the specified time range.";
+} else {
+    echo "It's outside the specified time range.";
+}
