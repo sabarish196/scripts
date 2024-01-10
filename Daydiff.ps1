@@ -148,3 +148,18 @@ function GetDaysBetweenTwoDays {
 
 # Example usage:
 GetDaysBetweenTwoDays -startDay "Friday" -endDay "Monday"
+
+# Find the current day of the week
+$currentDayOfWeek = (Get-Date).DayOfWeek
+
+# Find the days between Friday and Monday
+$daysBetween = @()
+$daysBetween += $currentDayOfWeek
+$currentDayIndex = [Array]::IndexOf([System.DayOfWeek]::GetValues([System.DayOfWeek]), $currentDayOfWeek)
+
+while ($daysBetween[-1] -ne 'Monday') {
+    $currentDayIndex = ($currentDayIndex + 1) % 7
+    $daysBetween += [System.DayOfWeek]::GetNames([System.DayOfWeek])[$currentDayIndex]
+}
+
+Write-Output $daysBetween
