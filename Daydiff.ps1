@@ -30,3 +30,22 @@ if ($day1 -eq $day2) {
 }
 
 
+
+# Get the current date and time
+$currentDateTime = Get-Date
+
+# Determine the starting day (any day from today to Saturday)
+$startDay = ($currentDateTime.DayOfWeek.value__ + 1) % 7  # Adjust for Sunday as the starting point
+$startDateTime = $currentDateTime.AddDays($startDay - $currentDateTime.DayOfWeek.value__).Date.AddHours(16)
+
+# Determine the ending day (any day from tomorrow to Sunday)
+$endDay = ($startDay + 1) % 7
+$endDateTime = $startDateTime.AddDays(1).Date.AddHours(8)
+
+# Calculate the time difference
+$timeDifference = $endDateTime - $startDateTime
+
+# Display the result
+Write-Host "Time difference between 16:00 of this week and 08:00 of next week:"
+Write-Host "Days: $($timeDifference.Days), Hours: $($timeDifference.Hours), Minutes: $($timeDifference.Minutes)"
+
