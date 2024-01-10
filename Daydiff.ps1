@@ -49,3 +49,23 @@ $timeDifference = $endDateTime - $startDateTime
 Write-Host "Time difference between 16:00 of this week and 08:00 of next week:"
 Write-Host "Days: $($timeDifference.Days), Hours: $($timeDifference.Hours), Minutes: $($timeDifference.Minutes)"
 
+
+# User inputs
+$startDay = "Monday"
+$stopDay = "Friday"
+$startHour = 8
+$stopHour = 16
+
+$currentTime = Get-Date
+$dayOfWeek = $currentTime.DayOfWeek
+$hour = $currentTime.Hour
+
+# Check if the current day is within the specified range and the current time is between startHour and stopHour
+if (($dayOfWeek -ge $startDay -and $dayOfWeek -le $stopDay) -and ($hour -ge $startHour -and $hour -lt $stopHour)) {
+    # Your code to run during this timeframe
+    Write-Host "Executing the task during the specified timeframe."
+}
+else {
+    Write-Host "Not within the specified timeframes."
+}
+
