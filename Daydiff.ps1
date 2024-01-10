@@ -266,3 +266,25 @@ if ($currentTimestamp >= $startTimestamp && $currentTimestamp <= $endTimestamp) 
 } else {
     echo "It's outside the specified time range.";
 }
+
+
+# User inputs or dynamic values
+$startDay = "Saturday"
+$startHour = 12
+$endDay = "Monday"
+$endHour = 4
+
+# Get current hour
+$currentHour = (Get-Date).Hour
+
+# Check if the current hour is within the specified range
+if (
+    ($startDay -eq (Get-Date).DayOfWeek -and $currentHour -ge $startHour) -or
+    ($endDay -eq (Get-Date).DayOfWeek -and $currentHour < $endHour) -or
+    ("Sunday", "Monday" -contains (Get-Date).DayOfWeek)
+) {
+    Write-Output "It's within the specified time range."
+} else {
+    Write-Output "It's outside the specified time range."
+}
+
