@@ -69,3 +69,21 @@ else {
     Write-Host "Not within the specified timeframes."
 }
 
+
+
+
+$startDate = "Friday"
+$endDate = "Monday"
+
+$daysOfWeek = [System.DayOfWeek] | Get-Member -Static -MemberType Properties | Select-Object -ExpandProperty Name
+
+$startIndex = $daysOfWeek.IndexOf($startDate)
+$endIndex = $daysOfWeek.IndexOf($endDate)
+
+if ($startIndex -lt $endIndex) {
+    $result = $daysOfWeek[$startIndex + 1..($endIndex - 1)]
+} else {
+    $result = $daysOfWeek[($startIndex + 1)..($endIndex + 6)]
+}
+
+Write-Output $result
