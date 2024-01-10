@@ -69,7 +69,33 @@ else {
     Write-Host "Not within the specified timeframes."
 }
 
+function GetDaysBetweenTwoDays {
+    param(
+        [string]$startDay,
+        [string]$endDay
+    )
 
+    $daysOfWeek = [System.DayOfWeek] | Get-Member -Static -MemberType Properties | Select-Object -ExpandProperty Name
+
+    $startIndex = $daysOfWeek.IndexOf($startDay)
+    $endIndex = $daysOfWeek.IndexOf($endDay)
+
+    if ($startIndex -eq $endIndex) {
+        Write-Output "The start and end days are the same."
+        return
+    }
+
+    if ($startIndex -lt $endIndex) {
+        $result = $daysOfWeek[($startIndex + 1)..($endIndex - 1)]
+    } else {
+        $result = $daysOfWeek[($startIndex + 1)..($endIndex + 5) % 7]
+    }
+
+    Write-Output $result
+}
+
+# Example usage:
+GetDaysBetweenTwoDays -startDay "Friday" -endDay "Monday"
 
 
 $startDate = "Friday"
