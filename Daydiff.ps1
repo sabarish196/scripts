@@ -199,3 +199,42 @@ function GetDaysBetweenTwoDays {
 
 # Example usage:
 GetDaysBetweenTwoDays -startDay "Thursday" -endDay "Tuesday"
+
+
+
+function GetDaysBetweenTwoDays {
+    param(
+        [string]$startDay,
+        [string]$endDay
+    )
+
+    $daysOfWeek = [System.DayOfWeek]::GetValues([System.DayOfWeek])
+
+    $startIndex = [array]::IndexOf($daysOfWeek, $startDay)
+    $endIndex = [array]::IndexOf($daysOfWeek, $endDay)
+
+    if ($startIndex -eq $endIndex) {
+        Write-Output "The start and end days are the same."
+        return
+    }
+
+    $result = @()
+
+    $currentDayIndex = $startIndex
+
+    while ($currentDayIndex -ne $endIndex) {
+        $result += $daysOfWeek[$currentDayIndex]
+        $currentDayIndex = ($currentDayIndex + 1) % 7
+    }
+
+    # Include the end day
+    $result += $daysOfWeek[$endIndex]
+
+    # Convert to a more human-readable format
+    $result = $result | ForEach-Object { [System.DayOfWeek]::$_ }
+
+    Write-Output $result
+}
+
+# Example usage:
+GetDaysBetweenTwoDays -startDay "Thursday" -endDay "Tuesday"
