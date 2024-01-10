@@ -98,6 +98,8 @@ function GetDaysBetweenTwoDays {
 GetDaysBetweenTwoDays -startDay "Friday" -endDay "Monday"
 
 
+
+
 $startDate = "Friday"
 $endDate = "Monday"
 
@@ -113,3 +115,36 @@ if ($startIndex -lt $endIndex) {
 }
 
 Write-Output $result
+
+
+
+function GetDaysBetweenTwoDays {
+    param(
+        [string]$startDay,
+        [string]$endDay
+    )
+
+    $daysOfWeek = [System.DayOfWeek] | Get-Member -Static -MemberType Properties | Select-Object -ExpandProperty Name
+
+    $startIndex = $daysOfWeek.IndexOf($startDay)
+    $endIndex = $daysOfWeek.IndexOf($endDay)
+
+    if ($startIndex -eq $endIndex) {
+        Write-Output "The start and end days are the same."
+        return
+    }
+
+    $result = @()
+
+    $currentDayIndex = $startIndex
+
+    while ($currentDayIndex -ne $endIndex) {
+        $result += $daysOfWeek[$currentDayIndex]
+        $currentDayIndex = ($currentDayIndex + 1) % 7
+    }
+
+    Write-Output $result
+}
+
+# Example usage:
+GetDaysBetweenTwoDays -startDay "Friday" -endDay "Monday"
