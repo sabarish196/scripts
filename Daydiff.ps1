@@ -16,3 +16,17 @@ $timeDifferenceInHours = ($endDayNum * 24 + [int]$endHour) - ($startDayNum * 24 
 
 # Display the result
 Write-Output "Time difference: $timeDifferenceInHours hours"
+
+
+$day1 = [System.DayOfWeek]::Friday  # Replace with your first day
+$day2 = [System.DayOfWeek]::Monday  # Replace with your second day
+
+if ($day1 -eq $day2) {
+    Write-Host "Both days are the same: $day1."
+} elseif ($day1 -lt $day2) {
+    Write-Host "$day1 comes earlier in the week than $day2."
+} else {
+    Write-Host "$day1 comes later in the week than $day2."
+}
+
+
