@@ -39,3 +39,25 @@ def ldif_to_csv(input_file, output_file):
 
 # Usage example
 ldif_to_csv('input.ldif', 'output.csv')
+
+
+
+import csv
+import ldap3
+
+def ldif_to_csv(input_file, output_file):
+    with open(input_file, 'rb') as ldif_file, open(output_file, 'w', newline='') as csv_file:
+        ldif_parser = ldap3.ldif.LDIFRecordList(ldif_file)
+        ldif_parser.parse()
+
+        csv_writer = csv.writer(csv_file)
+
+        for dn, entry in ldif_parser.all_records:
+            csv_writer.writerow([dn])
+
+            for attribute, values in entry.items():
+                for value in values:
+                    csv_writer.writerow([attribute, value])
+
+# Usage example
+ldif_to_csv('input.ldif', 'output.csv')
