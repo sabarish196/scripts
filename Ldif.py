@@ -80,3 +80,26 @@ def ldif_to_csv(input_file, output_file):
 
 # Usage example
 ldif_to_csv('input.ldif', 'output.csv')
+
+
+import ldif
+import csv
+
+def cn_to_csv(input_file, output_file):
+    with open(input_file, 'rb') as ldif_file, open(output_file, 'w', newline='') as csv_file:
+        ldif_parser = ldif.LDIFParser(ldif_file)
+        csv_writer = csv.writer(csv_file)
+
+        # Write header to the CSV file
+        csv_writer.writerow(['Common Name (cn)'])
+
+        # Iterate over LDIF entries
+        for _, entry in ldif_parser.parse():
+            # Check if the entry contains the 'cn' attribute
+            if 'cn' in entry:
+                # Write the 'cn' attribute values to the CSV file
+                for value in entry['cn']:
+                    csv_writer.writerow([value])
+
+# Usage example
+cn_to_csv('input.ldif', 'output.csv')
