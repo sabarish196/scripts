@@ -103,3 +103,38 @@ def cn_to_csv(input_file, output_file):
 
 # Usage example
 cn_to_csv('input.ldif', 'output.csv')
+
+
+from ldap3 import Server, Connection, SUBTREE
+
+# LDAP server configuration
+ldap_server = Server('ldap://your_ldap_server_address')
+ldap_username = 'your_ldap_username'
+ldap_password = 'your_ldap_password'
+
+# LDAP query parameters
+base_dn = 'ou=users,dc=example,dc=com'  # Adjust this to your LDAP structure
+search_filter = '(&(objectClass=user)(loginShell=/bin/bash))'  # LDAP filter to find users with /bin/bash shell
+
+try:
+    # Establish connection to LDAP server
+    ldap_conn = Connection(ldap_server, user=ldap_username, password=ldap_password, auto_bind=True)
+
+    # Perform LDAP search
+    ldap_conn.search(search_base=base_dn,
+                     search_filter=search_filter,
+                     search_scope=SUBTREE,
+                     attributes=['cn', 'uid', 'loginShell'])
+
+    # Display results
+    if ldap_conn.entries:
+        print("Service accounts with login shell /bin/bash:")
+        for entry in ldap_conn.entries:
+            print(f"CN: {entry.cn}, UID: {entry.uid}")
+    else:
+        print("No service accounts found with login shell /bin/bash.")
+
+    # Disconnect from LDAP server
+    ldap_conn.unbind()
+except Exception as e:
+    print(f"An error occurred: {e}")
