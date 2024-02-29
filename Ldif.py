@@ -186,3 +186,61 @@ try:
     ldap_conn.unbind()
 except Exception as e:
     print(f"An error occurred: {e}")
+
+
+from ldap3 import Server, Connection, SUBTREE, ALL_ATTRIBUTES
+import csv
+import re
+
+# LDAP server configuration
+ldap_server = Server('ldap://your_ldap_server_address')
+ldap_username = 'your_ldap_username'
+ldap_password = 'your_ldap_password'
+
+# LDAP query parameters
+base_dn = 'ou=users,dc=example,dc=com'  # Adjust this to your LDAP structure
+search_filter = '(&(objectClass=user)(loginShell=/bin/bash))'  # LDAP filter to find users with /bin/bash shell
+
+# CSV file configuration
+output_csv = 'service_accounts.csv'
+
+def extract_cn_from_memberof(member_of):
+    cn_list = []
+    for entry in member_of:
+        # Use regular expression to extract CN value from each memberOf entry
+        match = re.search(r'CN=([^,]+)', entry)
+        if match:
+            cn_list.append(match.group(1))
+    return ';'.join(cn_list)
+
+try:
+    # Establish connection to LDAP server
+    ldap_conn = Connection(ldap_server, user=ldap_username, password=ldap_password, auto_bind=True)
+
+    # Perform LDAP search
+    ldap_conn.search(search_base=base_dn,
+                     search_filter=search_filter,
+                     search_scope=SUBTREE,
+                     attributes=ALL_ATTRIBUTES)
+
+    # Write results to CSV
+    with open(output_csv, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        csv_writer.writerow(['CN', 'UID', 'memberOf'])
+
+        # Iterate over search results
+        for entry in ldap_conn.entries:
+            cn = entry.cn.value
+            uid = entry.uid.value
+            member_of = entry.memberOf.values if 'memberOf' in entry else []
+            cn_list = extract_cn_from_memberof(member_of)
+
+            # Write entry to CSV
+            csv_writer.writerow([cn, uid, cn_list])
+
+    print(f"Service account details exported to {output_csv}")
+
+    # Disconnect from LDAP server
+    ldap_conn.unbind()
+except Exception as e:
+    print(f"An error occurred: {e}")
