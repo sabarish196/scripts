@@ -35,3 +35,62 @@ secret_name = "your-secret-name"
 retrieved_secret = secret_client.get_secret(secret_name)
 
 print("Retrieved secret value:", retrieved_secret.value)
+
+
+
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+
+def authenticate_to_key_vault(vault_url):
+    try:
+        # Authenticate using DefaultAzureCredential
+        credential = DefaultAzureCredential()
+
+        # Create a SecretClient using the provided vault_url and credential
+        client = SecretClient(vault_url=vault_url, credential=credential)
+
+        return client
+
+    except Exception as e:
+        print("Authentication Error:", e)
+        return None
+
+def get_secret_from_key_vault(client, secret_name):
+    try:
+        # Retrieve the secret by its name
+        secret = client.get_secret(secret_name)
+
+        # Access the secret's value
+        secret_value = secret.value
+
+        return secret_value
+
+    except Exception as e:
+        print("Error:", e)
+        return None
+
+# Example usage:
+vault_url = "https://<your-vault-name>.vault.azure.net/"
+client = authenticate_to_key_vault(vault_url)
+
+if client:
+    secret_name_1 = "<your-secret-name-1>"
+    secret_value_1 = get_secret_from_key_vault(client, secret_name_1)
+
+    if secret_value_1:
+        print("Retrieved secret 1:", secret_value_1)
+    else:
+        print("Failed to retrieve secret 1.")
+
+    # Fetch another secret
+    secret_name_2 = "<your-secret-name-2>"
+    secret_value_2 = get_secret_from_key_vault(client, secret_name_2)
+
+    if secret_value_2:
+        print("Retrieved secret 2:", secret_value_2)
+    else:
+        print("Failed to retrieve secret 2.")
+else:
+    print("Failed to authenticate to Key Vault.")
+
+
