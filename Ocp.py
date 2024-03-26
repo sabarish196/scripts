@@ -1,3 +1,6 @@
+=SUM(IF(ISNUMBER(VALUE(SUBSTITUTE(LEFT(A2:INDEX(A:A, MATCH(9.99999999999999E+307, A:A))), "m", ""))), VALUE(SUBSTITUTE(LEFT(A2:INDEX(A:A, MATCH(9.99999999999999E+307, A:A))), "m", "")), 0))
+
+
 import sys
 import csv
 from openshift import config, client
