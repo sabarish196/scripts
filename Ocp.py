@@ -29,14 +29,20 @@ def export_to_csv(data, namespace):
                                  'Request CPU': limits['request_cpu'], 'Limit CPU': limits['limit_cpu'],
                                  'Request Memory': limits['request_memory'], 'Limit Memory': limits['limit_memory']})
 
-def main(token):
+def main(api_server, token):
     # Load the OpenShift configuration
-    configuration = config.new_client_from_config()
+    configuration = client.Configuration()
+    
+    # Set the API server URL
+    configuration.host = api_server
     
     # Set the token
     configuration.api_key = {
         "Authorization": f"Bearer {token}"
     }
+
+    # Disable SSL verification
+    configuration.verify_ssl = False
 
     # Create an OpenShift API client
     api_client = client.ApiClient(configuration)
@@ -57,8 +63,9 @@ def main(token):
         print(f"Exported data for namespace: {namespace_name}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <api_token>")
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <api_server> <api_token>")
         sys.exit(1)
-    token = sys.argv[1]
-    main(token)
+    api_server = sys.argv[1]
+    token = sys.argv[2]
+    main(api_server, token)
