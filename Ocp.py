@@ -241,3 +241,90 @@ def get_resource_limits(api_server, token, namespace, dep_config):
                 }
     return limits
 
+import sys
+import csv
+import requests
+import pandas as pd
+
+def get_resource_limits(api_server, token, namespace, dep_config):
+    limits = {}
+    dc_name = dep_config['metadata']['name']
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    params = {
+        "labelSelector": f"app={dc_name}"
+    }
+    response = requests.get(f"{api_server}/api/v1/namespaces/{namespace}/pods", headers=headers, params=params, verify=False)
+    if response.status_code == 200:
+        pods = response.json().get('items', [])
+        if pods:
+            pod = pods[0]
+            containers = pod['spec']['containers']
+            for container in containers:
+                resources = container.get('resources', {})
+                limits[container['name']] = {
+                    'request_cpu': resources.get('requests', {}).get('cpu', '0'),
+                    'limit_cpu': resources.get('limits', {}).get('cpu', '0'),
+                    'request_memory': resources.get('requests', {}).get('memory', '0'),
+                    'limit_memory': resources.get('limits', {}).get('memory', '0')
+                }
+        else:
+            print(f"No pods found for deployment configuration: {dc_name}")
+    return limits
+
+def export_to_csv(data, namespace):
+    with open(f'{namespace}_deployment_configs.csv', 'w', newline='') as csvfile:
+        fieldnames = ['DeploymentConfig', 'Container', 'Request CPU', 'Limit CPU', 'Request Memory', 'Limit Memory']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for dep_config, containers in data.items():
+            if not containers:
+                writer.writerow({'DeploymentConfig': dep_config, 'Container': 'N/A',
+                                 'Request CPU': 'N/A', 'Limit CPU': 'N/A',
+                                 'Request Memory': 'N/A', 'Limit Memory': 'N/A'})
+            else:
+                for container, limits in containers.items():
+                    writer.writerow({'DeploymentConfig': dep_config, 'Container': container,
+                                     'Request CPU': limits['request_cpu'], 'Limit CPU': limits['limit_cpu'],
+                                     'Request Memory': limits['request_memory'], 'Limit Memory': limits['limit_memory']})
+
+def main(api_server, token):
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    
+    # Example: Get deployment configs and resource limits for each namespace
+    response = requests.get(f"{api_server}/apis/apps/v1/deploymentconfigs", headers=headers, verify=False)
+    if response.status_code == 200:
+        namespaces = [item['metadata']['name'] for item in response.json().get('items', [])]
+        
+        for namespace in namespaces:
+            print(f"Processing namespace: {namespace}")
+
+            response = requests.get(f"{api_server}/apis/apps/v1/namespaces/{namespace}/deploymentconfigs", headers=headers, verify=False)
+            if response.status_code == 200:
+                dep_configs = response.json().get('items', [])
+                data = {}
+                for dep_config in dep_configs:
+                    data[dep_config['metadata']['name']] = get_resource_limits(api_server, token, namespace, dep_config)
+
+                export_to_csv(data, namespace)
+                print(f"Exported data for namespace: {namespace}")
+            else:
+                print(f"Failed to fetch deployment configs for namespace: {namespace}")
+
+        print("All data exported.")
+    else:
+        print("Failed to fetch deployment configs.")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <api_server> <api_token>")
+        sys.exit(1)
+    api_server = sys.argv[1]
+    token = sys.argv[2]
+    main(api_server, token)
+
