@@ -69,3 +69,74 @@ if __name__ == "__main__":
     api_server = sys.argv[1]
     token = sys.argv[2]
     main(api_server, token)
+
+
+
+
+import sys
+import csv
+import requests
+
+def get_resource_limits(api_server, token, namespace, dep_config):
+    limits = {}
+    dc_name = dep_config['metadata']['name']
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    params = {
+        "labelSelector": f"app={dc_name}"
+    }
+    response = requests.get(f"{api_server}/api/v1/namespaces/{namespace}/pods", headers=headers, params=params, verify=False)
+    pods = response.json()['items']
+    if pods:
+        pod = pods[0]
+        containers = pod['spec']['containers']
+        for container in containers:
+            limits[container['name']] = {
+                'request_cpu': container['resources']['requests']['cpu'],
+                'limit_cpu': container['resources']['limits']['cpu'],
+                'request_memory': container['resources']['requests']['memory'],
+                'limit_memory': container['resources']['limits']['memory']
+            }
+    return limits
+
+def export_to_csv(data, namespace):
+    with open(f'{namespace}_deployment_configs.csv', 'w', newline='') as csvfile:
+        fieldnames = ['DeploymentConfig', 'Container', 'Request CPU', 'Limit CPU', 'Request Memory', 'Limit Memory']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for dep_config, containers in data.items():
+            for container, limits in containers.items():
+                writer.writerow({'DeploymentConfig': dep_config, 'Container': container,
+                                 'Request CPU': limits['request_cpu'], 'Limit CPU': limits['limit_cpu'],
+                                 'Request Memory': limits['request_memory'], 'Limit Memory': limits['limit_memory']})
+
+def main(api_server, token):
+    # Example: Get deployment configs and resource limits for each namespace
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    response = requests.get(f"{api_server}/apis/apps/v1/deploymentconfigs", headers=headers, verify=False)
+    namespaces = [item['metadata']['name'] for item in response.json()['items']]
+    
+    for namespace in namespaces:
+        print(f"Processing namespace: {namespace}")
+
+        response = requests.get(f"{api_server}/apis/apps/v1/namespaces/{namespace}/deploymentconfigs", headers=headers, verify=False)
+        dep_configs = response.json()['items']
+        data = {}
+        for dep_config in dep_configs:
+            data[dep_config['metadata']['name']] = get_resource_limits(api_server, token, namespace, dep_config)
+
+        export_to_csv(data, namespace)
+        print(f"Exported data for namespace: {namespace}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <api_server> <api_token>")
+        sys.exit(1)
+    api_server = sys.argv[1]
+    token = sys.argv[2]
+    main(api_server, token)
