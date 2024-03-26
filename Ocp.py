@@ -140,3 +140,76 @@ if __name__ == "__main__":
     api_server = sys.argv[1]
     token = sys.argv[2]
     main(api_server, token)
+
+
+import sys
+import pandas as pd
+import requests
+
+def get_resource_limits(api_server, token, namespace, dep_config):
+    limits = {}
+    dc_name = dep_config['metadata']['name']
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    params = {
+        "labelSelector": f"app={dc_name}"
+    }
+    response = requests.get(f"{api_server}/api/v1/namespaces/{namespace}/pods", headers=headers, params=params, verify=False)
+    if response.status_code == 200:
+        pods = response.json().get('items', [])
+        if pods:
+            pod = pods[0]
+            containers = pod['spec']['containers']
+            for container in containers:
+                limits[container['name']] = {
+                    'request_cpu': container['resources']['requests']['cpu'],
+                    'limit_cpu': container['resources']['limits']['cpu'],
+                    'request_memory': container['resources']['requests']['memory'],
+                    'limit_memory': container['resources']['limits']['memory']
+                }
+    return limits
+
+def main(api_server, token):
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    
+    # Example: Get deployment configs and resource limits for each namespace
+    response = requests.get(f"{api_server}/apis/apps/v1/deploymentconfigs", headers=headers, verify=False)
+    if response.status_code == 200:
+        namespaces = [item['metadata']['name'] for item in response.json().get('items', [])]
+        
+        writer = pd.ExcelWriter('deployment_configs.xlsx', engine='xlsxwriter')
+        
+        for namespace in namespaces:
+            print(f"Processing namespace: {namespace}")
+
+            response = requests.get(f"{api_server}/apis/apps/v1/namespaces/{namespace}/deploymentconfigs", headers=headers, verify=False)
+            if response.status_code == 200:
+                dep_configs = response.json().get('items', [])
+                data = {}
+                for dep_config in dep_configs:
+                    data[dep_config['metadata']['name']] = get_resource_limits(api_server, token, namespace, dep_config)
+
+                df = pd.DataFrame(data)
+                df.to_excel(writer, sheet_name=namespace)
+                
+                print(f"Exported data for namespace: {namespace}")
+            else:
+                print(f"Failed to fetch deployment configs for namespace: {namespace}")
+
+        writer.save()
+        print("All data exported to deployment_configs.xlsx")
+    else:
+        print("Failed to fetch deployment configs.")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <api_server> <api_token>")
+        sys.exit(1)
+    api_server = sys.argv[1]
+    token = sys.argv[2]
+    main(api_server, token)
