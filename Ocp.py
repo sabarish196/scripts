@@ -213,3 +213,31 @@ if __name__ == "__main__":
     api_server = sys.argv[1]
     token = sys.argv[2]
     main(api_server, token)
+
+
+def get_resource_limits(api_server, token, namespace, dep_config):
+    limits = {}
+    dc_name = dep_config['metadata']['name']
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    params = {
+        "labelSelector": f"app={dc_name}"
+    }
+    response = requests.get(f"{api_server}/api/v1/namespaces/{namespace}/pods", headers=headers, params=params, verify=False)
+    if response.status_code == 200:
+        pods = response.json().get('items', [])
+        if pods:
+            pod = pods[0]
+            containers = pod['spec']['containers']
+            for container in containers:
+                resources = container.get('resources', {})
+                limits[container['name']] = {
+                    'request_cpu': resources.get('requests', {}).get('cpu', '0'),
+                    'limit_cpu': resources.get('limits', {}).get('cpu', '0'),
+                    'request_memory': resources.get('requests', {}).get('memory', '0'),
+                    'limit_memory': resources.get('limits', {}).get('memory', '0')
+                }
+    return limits
+
