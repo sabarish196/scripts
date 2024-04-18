@@ -33,3 +33,42 @@ if __name__ == "__main__":
     port = int(sys.argv[5])
     
     send_email(recipient, subject, body, relay_server, port)
+
+
+import yagmail
+import sys
+
+def send_email(sender_email, sender_password, recipient_email, subject, body, relay_server, port):
+    # Set up yagmail with relay server and port
+    yag = yagmail.SMTP(
+        user=sender_email,
+        password=sender_password,
+        host=relay_server,
+        port=port
+    )
+
+    # Send the email
+    yag.send(
+        to=recipient_email,
+        subject=subject,
+        contents=body
+    )
+
+    print("Email sent successfully")
+
+# Example usage:
+if __name__ == "__main__":
+    if len(sys.argv) != 7:
+        print("Usage: python script.py sender_email sender_password recipient_email subject body relay_server port")
+        sys.exit(1)
+
+    sender_email = sys.argv[1]
+    sender_password = sys.argv[2]
+    recipient_email = sys.argv[3]
+    subject = sys.argv[4]
+    body = sys.argv[5]
+    relay_server = sys.argv[6]
+    port = sys.argv[7]
+
+    send_email(sender_email, sender_password, recipient_email, subject, body, relay_server, port)
+
