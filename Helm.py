@@ -42,3 +42,28 @@ repo.index.commit("Modified YAML files as per requirements")
 # Push changes to remote
 origin = repo.remote('origin')
 origin.push(new_branch)
+
+import git
+
+def create_new_branch(repo_url):
+    # Clone the repository
+    repo = git.Repo.clone_from(repo_url, '.')
+
+    # Checkout the develop branch
+    repo.git.checkout('develop')
+
+    # Create a new branch named helmupdates from develop
+    new_branch = repo.create_head('helmupdates', 'develop')
+    repo.head.reference = new_branch
+    repo.head.reset(index=True, working_tree=True)
+
+    # Push the new branch to the remote repository
+    origin = repo.remote('origin')
+    origin.push(new_branch)
+
+if __name__ == "__main__":
+    repo_url = input("Enter the repository URL: ")
+    create_new_branch(repo_url)
+
+
+
