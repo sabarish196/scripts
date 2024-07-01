@@ -1,0 +1,63 @@
+- name: Add a host to Ansible Tower inventory by inventory name
+  hosts: localhost
+  gather_facts: no
+  vars:
+    tower_host: "https://your_ansible_tower"
+    tower_username: "your_username"
+    tower_password: "your_password"
+    inventory_name: "your_inventory_name"  # Replace with your inventory name
+    new_host_name: "new_host"
+    new_host_ip: "192.168.1.100"
+
+  tasks:
+    - name: Get inventory ID by name
+      uri:
+        url: "{{ tower_host }}/api/v2/inventories/?name={{ inventory_name }}"
+        method: GET
+        user: "{{ tower_username }}"
+        password: "{{ tower_password }}"
+        force_basic_auth: yes
+        status_code: 200
+        validate_certs: no
+        headers:
+          Content-Type: "application/json"
+      register: inventory_result
+
+    - name: Set inventory ID
+      set_fact:
+        inventory_id: "{{ inventory_result.json.results[0].id }}"
+
+    - name: Add host to Ansible Tower inventory
+      uri:
+        url: "{{ tower_host }}/api/v2/hosts/"
+        method: POST
+        user: "{{ tower_username }}"
+        password: "{{ tower_password }}"
+        force_basic_auth: yes
+        status_code: 201
+        validate_certs: no
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "name": "{{ new_host_name }}",
+            "inventory": {{ inventory_id }},
+            "description": "Added by Ansible playbook",
+            "variables": "ansible_host={{ new_host_ip }}"
+          }
+        body_format: json
+
+    - name: Verify host addition (optional)
+      uri:
+        url: "{{ tower_host }}/api/v2/hosts/?name={{ new_host_name }}"
+        method: GET
+        user: "{{ tower_username }}"
+        password: "{{ tower_password }}"
+        force_basic_auth: yes
+        status_code: 200
+        validate_certs: no
+      register: result
+
+    - name: Debug host addition result (optional)
+      debug:
+        var: result.json
