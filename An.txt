@@ -1,0 +1,36 @@
+Here's an updated epic description that incorporates the specific details about building servers on-premises and automating DNS record creation:
+
+---
+
+**Epic Title:** On-Prem Server Build and DNS Automation
+
+**Epic Description:**
+
+This epic focuses on automating the on-premises server provisioning process and the associated DNS record creation using Ansible. The goal is to streamline the server build process, ensuring rapid deployment, consistent configurations, and automated DNS updates.
+
+**Objectives:**
+
+1. **Automated Server Provisioning:**
+   - Develop and implement Ansible playbooks to automate the provisioning of on-premises servers, ensuring consistent and error-free deployment.
+   - Include steps for hardware initialization, operating system installation, and application deployment as part of the automated process.
+
+2. **DNS Record Automation:**
+   - Automate the creation and management of DNS records for newly provisioned servers using Ansible, ensuring that all servers are correctly registered and accessible within the network.
+   - Implement validation steps to verify DNS entries and ensure alignment with the existing network architecture.
+
+3. **Integration with Infrastructure Tools:**
+   - Ensure seamless integration of the Ansible automation with existing on-premises infrastructure management tools, including VMware and DNS management systems.
+   - Develop custom Ansible modules or scripts if required to support specific aspects of the on-prem environment and DNS systems.
+
+4. **Documentation and Knowledge Transfer:**
+   - Provide detailed documentation for all automation scripts and processes, ensuring transparency and ease of use for the IT team.
+   - Conduct training sessions to familiarize the team with the new server build and DNS automation workflows.
+
+**Expected Outcomes:**
+- Faster, more reliable server provisioning processes.
+- Automated, error-free DNS record management for all on-prem servers.
+- Enhanced operational efficiency and reduced manual intervention in server and DNS management.
+
+---
+
+This description captures the key elements of your team's automation goals, providing a clear roadmap for the epic in Azure DevOps.
