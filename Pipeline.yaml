@@ -1,0 +1,63 @@
+trigger:
+- feature/*  # Trigger the pipeline for any branch starting with 'feature/'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+# Checkout the code from the repository
+- checkout: self
+
+# Install the Azure DevOps CLI (optional if not already installed)
+- script: |
+    sudo apt-get install -y apt-transport-https
+    sudo apt-get update
+    sudo apt-get install azure-cli -y
+  displayName: 'Install Azure CLI'
+
+# Shell script to check if PR exists, and create a PR if it doesn't
+- script: |
+    # Define variables
+    ORGANIZATION_URL=$(System.TeamFoundationCollectionUri)
+    PROJECT=$(System.TeamProject)
+    REPO=$(Build.Repository.Name)
+    SOURCE_BRANCH=$(Build.SourceBranchName)  # Dynamically get the feature branch name
+    TARGET_BRANCH="dev"
+    PR_TITLE="Automated PR from $SOURCE_BRANCH to dev"
+    PR_DESCRIPTION="This PR was created automatically by the pipeline from $SOURCE_BRANCH to dev"
+    AZURE_DEVOPS_TOKEN=$(System.AccessToken)  # Built-in access token
+
+    # Get the list of PRs from the Azure DevOps API
+    echo "Checking for existing pull requests..."
+    EXISTING_PR=$(curl -s -X GET \
+    -H "Authorization: Bearer $AZURE_DEVOPS_TOKEN" \
+    "$ORGANIZATION_URL$PROJECT/_apis/git/repositories/$REPO/pullrequests?searchCriteria.sourceRefName=refs/heads/$SOURCE_BRANCH&searchCriteria.targetRefName=refs/heads/$TARGET_BRANCH&api-version=6.0")
+
+    # Check if a PR already exists
+    PR_COUNT=$(echo $EXISTING_PR | jq '.count')
+
+    if [ "$PR_COUNT" -gt 0 ]; then
+        echo "A pull request from $SOURCE_BRANCH to $TARGET_BRANCH already exists. Skipping PR creation."
+    else
+        echo "No existing PR found. Creating a new pull request..."
+        # Create the PR request body
+        PR_REQUEST_BODY=$(cat <<EOF
+        {
+          "sourceRefName": "refs/heads/$SOURCE_BRANCH",
+          "targetRefName": "refs/heads/$TARGET_BRANCH",
+          "title": "$PR_TITLE",
+          "description": "$PR_DESCRIPTION"
+        }
+        EOF
+        )
+
+        # Make a POST request to Azure DevOps API to create the PR
+        curl -X POST \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $AZURE_DEVOPS_TOKEN" \
+        -d "$PR_REQUEST_BODY" \
+        "$ORGANIZATION_URL$PROJECT/_apis/git/repositories/$REPO/pullrequests?api-version=6.0"
+
+        echo "Pull request created successfully."
+    fi
+  displayName: 'Check for existing PR and create PR if needed'
