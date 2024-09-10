@@ -1,0 +1,53 @@
+---
+- name: Filter out specific variables from vars
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Define the prefixes to exclude
+      set_fact:
+        exclude_prefixes:
+          - 'ansible_'
+          - 'Group_'
+          - 'Inventory_'
+          - 'Gather_'
+          - 'Module_'
+          - 'Awx_'
+          - 'Playbook_'
+          - 'Group'
+          - 'Play_'
+          - 'Hostvars'
+          - 'Environment'
+
+    - name: Filter out variables based on prefixes
+      set_fact:
+        filtered_vars: >-
+          {{
+            vars | dict2items |
+            selectattr('key', 'search', '^(?!({{ exclude_prefixes | join("|") }}))') |
+            items2dict
+          }}
+
+    - name: Print filtered variables
+      debug:
+        msg: "{{ filtered_vars }}"
+
+
+
+---
+- name: Filter out specific variables from vars
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Filter out variables based on prefixes
+      set_fact:
+        filtered_vars: >-
+          {{
+            vars | dict2items |
+            selectattr('key', 'search', '^(?!ansible_|Group_|Inventory_|Gather_|Module_|Awx_|Playbook_|Group|Play_|Hostvars|Environment)') |
+            items2dict
+          }}
+
+    - name: Print filtered variables
+      debug:
+        msg: "{{ filtered_vars }}"
+        
