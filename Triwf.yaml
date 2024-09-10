@@ -1,0 +1,26 @@
+- name: Capture, store, display variables, and trigger next workflow with retry using uri
+  hosts: localhost
+  tasks:
+    - name: Capture and store variables from ServiceNow
+      set_fact:
+        servicenow_vars: "{{ hostvars[inventory_hostname] }}"
+
+    - name: Display the stored variables (servicenow_vars)
+      debug:
+        var: servicenow_vars
+
+    - name: Trigger another workflow using the uri module with retry
+      uri:
+        url: "https://<ansible_tower_url>/api/v2/workflow_job_templates/<workflow_id>/launch/"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ ansible_tower_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          extra_vars: "{{ servicenow_vars }}"
+        status_code: 201  # Expecting 201 Created on success
+      retries: 3  # Retry up to 3 times
+      delay: 5    # Wait 5 seconds between retries
+      register: result
+      failed_when: result.status != 201  # Retry if the status code is not 201 Created
