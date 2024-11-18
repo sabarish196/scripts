@@ -1,0 +1,33 @@
+Here’s a detailed explanation of each stage based on your description:
+
+1. Prerequisites Stage
+
+This stage involves preparing the foundational elements required to onboard a tenant. These are preliminary tasks done before any actual onboarding begins. Key actions include:
+	•	Tenant Repository Creation: Setting up a version control repository (e.g., GitHub or Azure DevOps) dedicated to the tenant’s resources.
+	•	Terraform (TF) Workspace Setup: Creating a Terraform workspace specific to the tenant to organize and isolate their infrastructure configurations.
+	•	TF Team Setup: Configuring Terraform teams or permissions for the tenant to control access and collaboration.
+	•	TF Token Generation: Generating authentication tokens for Terraform to interact securely with the infrastructure.
+	•	Version Control Integration: Linking Terraform with a Git repository for storing and managing infrastructure as code.
+	•	Adding Git Variables (Optional): Configuring repository variables that will be used for automation and deployment purposes.
+
+2. Stateless Onboarding
+
+This stage focuses on creating components that do not rely on Terraform state files. These are typically configurations or resources that can exist independently without tracking their state. Key activities include:
+	•	Infrastructure Repository Setup: Creating a Git repository for storing the tenant’s infrastructure code.
+	•	Terraform Workspace Setup: Establishing a workspace specific to the tenant’s infrastructure configurations.
+	•	TF Team Creation: Configuring teams for access and permissions to manage the infrastructure.
+	•	Variable Updates in Git: Updating or adding required variables directly in the Git repository for use during automation.
+
+These tasks ensure a smooth setup process without requiring a Terraform state file to track resource dependencies.
+
+3. Stateful Onboarding
+
+This stage involves creating and managing resources that require a Terraform state file to track their current state and dependencies. These resources are usually persistent and require proper state management to avoid conflicts or issues. Key tasks include:
+	•	Google Cloud Project (GCP Project): Setting up a GCP project for the tenant to host their resources.
+	•	Kubernetes Namespace Creation: Creating a namespace in Kubernetes to isolate and manage the tenant’s workloads.
+	•	Vault Onboarding: Configuring HashiCorp Vault to securely manage and store secrets and credentials for the tenant.
+	•	Azure Active Directory (AAD) Groups: Setting up AAD groups for access management and role assignments.
+	•	GCP Accounts Setup: Creating and configuring accounts for accessing GCP resources.
+	•	Next-Gen Firewall Rules: Defining firewall rules to ensure secure network access and communication for the tenant’s infrastructure.
+
+This phase relies on the Terraform state file to manage resource dependencies and ensure the infrastructure’s consistency and accuracy over time.
