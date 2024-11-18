@@ -31,3 +31,18 @@ This stage involves creating and managing resources that require a Terraform sta
 	•	Next-Gen Firewall Rules: Defining firewall rules to ensure secure network access and communication for the tenant’s infrastructure.
 
 This phase relies on the Terraform state file to manage resource dependencies and ensure the infrastructure’s consistency and accuracy over time.
+
+
+
+
+Rephrased MMP (2024) Content:
+
+The key updates proposed for Tenant Onboarding in GCP 3.0 are as follows:
+	1.	DCP UI Integration: The DCP UI will trigger the SEIA tenant onboarding process using a set of new endpoints. These endpoints will be hosted through services like Cloud Functions, Cloud Run, or on a virtual machine (VM).
+	2.	Dedicated Repository and Workspace: Each tenant will have its own individual repository and workspace for better isolation and management.
+	3.	Three-Stage Automation: The entire onboarding automation process is divided into three distinct stages:
+	•	Prerequisites
+	•	Stateless Onboarding
+	•	Stateful Onboarding
+
+Refer to the diagram below for a visual representation of this approach.
