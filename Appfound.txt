@@ -46,3 +46,18 @@ The key updates proposed for Tenant Onboarding in GCP 3.0 are as follows:
 	•	Stateful Onboarding
 
 Refer to the diagram below for a visual representation of this approach.
+
+
+
+
+Here are some advantages of decoupling the tenant onboarding process and creating separate workspaces for each tenant in GCP:
+	1.	Improved Isolation: Each tenant operates independently, reducing the risk of cross-tenant impact during changes or failures.
+	2.	Simplified State Management: Separate state files make it easier to manage, debug, and track changes for individual tenants.
+	3.	Enhanced Security: Workspaces provide isolation, enabling tenant-specific access controls and minimizing security risks.
+	4.	Better Scalability: Independent workspaces allow tenants to scale their infrastructure without affecting others.
+	5.	Streamlined Updates: Changes can be applied to specific tenants without impacting other tenants, improving operational efficiency.
+	6.	Faster Troubleshooting: Issues are isolated to a single tenant, simplifying root cause analysis and resolution.
+	7.	Customized Configuration: Each tenant can have tailored configurations for environments like NPE and PROD without interfering with others.
+	8.	Improved Auditability: Individual state files provide clearer logs and change histories for compliance and auditing purposes.
+	9.	Increased Flexibility: Enables easier experimentation or testing in specific tenant environments without affecting production.
+	10.	Reduced Complexity: Decoupling the process reduces dependencies, making onboarding and management processes simpler and more manageable.
