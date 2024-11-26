@@ -16,3 +16,8 @@ Let me know if you’d like to further refine or add details!
 
 
 Served as the point of contact and one of the engineers for the GCP 3.0 project, focusing on the design and documentation of App Substrate Automation. Led efforts to develop a scalable and modular architectural blueprint, identified key workflows and integration points across GCP services, and collaborated with stakeholders to ensure alignment on requirements. Additionally, authored detailed implementation guides and operational documentation, including troubleshooting procedures and best practices, to support the maintainability and efficiency of the automation processes.
+
+
+
+
+Acted as the point of contact from the automation engineering team while also contributing as one of the engineers to the design of App Substrate Automation for the GCP 3.0 project. Played a vital role in crafting a scalable and modular architectural blueprint, defining key workflows and integration points, and working closely with stakeholders to ensure alignment with project requirements. Additionally, developed detailed implementation guides and operational documentation to enhance the efficiency, maintainability, and reliability of the automation processes.
