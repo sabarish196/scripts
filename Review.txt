@@ -1,0 +1,14 @@
+Here’s a polished version of your year-end performance review input:
+
+Goal: Ansible and On-Prem Automations
+
+As the lead of this project, I successfully migrated multiple automation workflows, including server builds and DNS automation, from Ansible Tower to Ansible Automation Platform (AAP) without any user impact. I also refactored and redesigned the DNS automation to improve its efficiency and execution speed.
+
+In addition to these achievements, I delivered several critical automation projects:
+	•	Akamai Automation: Automated the creation of new sites in Akamai, streamlining a previously manual process.
+	•	Qualys Automation: Developed a solution to retrieve a list of service accounts with shell access, enhancing security operations.
+	•	Disaster Recovery (DR) Automation: Implemented automation for DR recovery and failover processes, ensuring faster and more reliable failover during emergencies.
+
+These initiatives have significantly enhanced operational efficiency, reduced manual efforts, and improved overall system reliability.
+
+Let me know if you’d like to further refine or add details!
