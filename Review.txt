@@ -61,3 +61,12 @@ Overseeing the Integration of New Automation Processes into Ansible:
 Along with the AAP migration, we focused on integrating new automation processes into Ansible. Our team successfully developed and onboarded automation for Qualis, Akamai, disaster recovery, and storage, among others. We also introduced an updated branching strategy for DNS automation, ensuring code was promoted to production with proper approvals. Despite challenges such as limited availability of external teams, access constraints, and test platform limitations, we addressed these issues through proactive follow-ups and effective collaboration.
 
 Let me know if you’d like any further tweaks!
+
+
+
+Here’s a refined version of your statement:
+
+Proactive Blocker Resolution:
+I actively assisted teams in resolving blockers by developing Python scripts for TechStart, cost governance, and application onboarding. Additionally, I supported teams in setting up Terraform workspaces and addressing module-related errors. I collaborated with cross-functional teams, including cost optimization and platform teams, to complete their pending tasks efficiently.
+
+Let me know if you’d like further adjustments!
