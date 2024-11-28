@@ -41,5 +41,9 @@ Here’s a sample structure for your comment:
 	•	Impact: Explain the result or improvement.
 
 Let me know if you need help crafting an example!
+Here’s a polished version of your comment for “Caring”:
+
+Caring: I actively supported my Ansible teammates by resolving blockers they encountered during deployments, including issues involving other teams. Additionally, I assisted the Software Engineering (SE) team in addressing intermittent challenges, such as Terraform module issues, scripting help, and other blockers. My efforts not only improved team productivity but also strengthened collaboration and trust, fostering a better bond across the entire team.
+
 
 
