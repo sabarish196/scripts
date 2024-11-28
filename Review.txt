@@ -47,3 +47,4 @@ Caring: I actively supported my Ansible teammates by resolving blockers they enc
 
 
 
+We successfully migrated from Ansible Tower to Ansible Automation Platform (AAP), transitioning around 20 workflows and more than 100 job templates for server builds and DNS management. The project, which began in June and was completed by October, required careful planning and execution. Our team of three collaborated closely to prioritize milestones, address challenges, and meet deadlines. One of the significant hurdles was implementing ServiceNow changes, which initially required about 45 days. Through proactive follow-ups and consistent communication, we expedited the process and ensured the migration was completed on time.
