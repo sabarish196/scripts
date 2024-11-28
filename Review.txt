@@ -48,3 +48,7 @@ Caring: I actively supported my Ansible teammates by resolving blockers they enc
 
 
 We successfully migrated from Ansible Tower to Ansible Automation Platform (AAP), transitioning around 20 workflows and more than 100 job templates for server builds and DNS management. The project, which began in June and was completed by October, required careful planning and execution. Our team of three collaborated closely to prioritize milestones, address challenges, and meet deadlines. One of the significant hurdles was implementing ServiceNow changes, which initially required about 45 days. Through proactive follow-ups and consistent communication, we expedited the process and ensured the migration was completed on time.
+
+
+
+In GCP 3.0, I served as the primary point of contact for the entire automation engineering group, which encompassed multiple teams, including the Service Enablement Team, Automation Platform Team (focused on Ansible and Terraform), and the Cost Optimization Team. I worked closely with GCP DSu to communicate updates, changes, and deliverables effectively. Additionally, I played a key role in designing a new architecture for App Substrate Automation, collaborating with the lead to develop and document detailed design plans. These design documents and milestones were thoroughly reviewed by broader groups, receiving positive feedback and approval. Despite initial challenges, such as confusion around roles and responsibilities in this large-scale project, I proactively addressed these issues to maintain clarity and progress.
