@@ -70,3 +70,8 @@ Proactive Blocker Resolution:
 I actively assisted teams in resolving blockers by developing Python scripts for TechStart, cost governance, and application onboarding. Additionally, I supported teams in setting up Terraform workspaces and addressing module-related errors. I collaborated with cross-functional teams, including cost optimization and platform teams, to complete their pending tasks efficiently.
 
 Let me know if you’d like further adjustments!
+
+
+
+
+I thoroughly evaluated OpenShift from a developer experience perspective, considering its impact on retooling containerized applications, the efforts required to retool on-premises VM deployments, and the implications of onboarding for Cloud 3.0. I compiled a detailed report on all four areas for leadership. Unfortunately, the project has been put on hold.
